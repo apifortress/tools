@@ -29,7 +29,7 @@ var _furyAdapterApibSerializer2 = _interopRequireDefault(_furyAdapterApibSeriali
 var _furyAdapterApiaryBlueprintParser = require('fury-adapter-apiary-blueprint-parser');
 var _furyAdapterApiaryBlueprintParser2 = _interopRequireDefault(_furyAdapterApiaryBlueprintParser);
 const ramlConverter = require('oas-raml-converter');
-const exporter = require('highcharts-export-server');
+
 const util = require('util')
 const fs = require('fs')
 
@@ -79,30 +79,8 @@ function processInput (request, response) {
 	})
 }
 
-function processHighcharts (request, response) {
-	var exportSettings = request.body;
-
-	exportSettings.options = exportSettings.infile;
-	delete exportSettings.infile;
-
-	// Perform an export
-	exporter.export (exportSettings, function (err, res) {
-	    // The export result is now in res.
-	    // If the output is not PDF or SVG, it will be base64 encoded (res.data).
-	    // If the output is a PDF or SVG, it will contain a filename (res.filename).
-
-	    // Kill the pool when we're done with it, and exit the application
-	    if (res && res.data !== undefined)
-	    	response.send (res.data);
-	    else
-	    	response.send (null);
-	    // exporter.killPool ();
-	    // process.exit (1);
-	});
-}
-
 const processRaml = (req) => {
     return ramlToOas20.convertData(req.rawBody)
 }
 
-module.exports = { rawBodySaver, processInput, processHighcharts, processRaml, ramlToOas20 }
+module.exports = { rawBodySaver, processInput, processRaml, ramlToOas20 }
