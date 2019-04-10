@@ -6,8 +6,8 @@ router.use('/raml', require('./raml'))
 
 router.use (bodyParser.raw ({ limit:'50mb', verify: utilFunctions.rawBodySaver, type: function () { return true } }));
 
-router.post("/", (req, res) => {
-    utilFunctions.processInput(req, res)
+router.post ("/", (req, res) => {
+    utilFunctions.processRequest (req, res)
 });
 
 module.exports = router

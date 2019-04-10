@@ -30,8 +30,9 @@ var _furyAdapterApiaryBlueprintParser = require('fury-adapter-apiary-blueprint-p
 var _furyAdapterApiaryBlueprintParser2 = _interopRequireDefault(_furyAdapterApiaryBlueprintParser);
 const ramlConverter = require('oas-raml-converter');
 
-const util = require('util')
-const fs = require('fs')
+const util 	= require('util')
+const fs 	= require('fs')
+const del 	= require ('del')
 
 const ramlToOas20 = new ramlConverter.Converter(ramlConverter.Formats.RAML, ramlConverter.Formats.OAS20)
 
@@ -52,30 +53,70 @@ function rawBodySaver (req, res, buf, encoding) {
 	}
 }
 
-function processInput (request, response) {
+function processRequest (request, response) {
 	var input 	= request.rawBody,
 		options = {
 			source: input
 		},
 		output = null;
 
+	processInput (request.rawBody, (err, result) => {
+		if (err) {
+			response.status (500);
+			response.send ({ error: err })
+		} else {
+			response.send (result);
+		}
+	})
+
+	// _fury2.default['parse'](options, function (err, result) {
+	// 	if (result) {
+	// 		try {
+	//         	var serialiser = new _json2.default (_fury2.default.minim);
+	    	
+	//     		response.send (serialiser.serialise (result));
+	//     	} catch (e) {
+	// 			response.status (500);
+	// 			console.error(e)
+  	// 			response.send ({ error: e })
+	//     	}
+	//     } 
+
+	//     else {
+	//     	response.status (500);
+  	// 		response.send ({ error: err })
+	//     }
+	// })
+}
+
+function processInput (input, callback) {
+	const options 	= { }
+	options.source 	= input;
+
 	_fury2.default['parse'](options, function (err, result) {
 		if (result) {
 			try {
 	        	var serialiser = new _json2.default (_fury2.default.minim);
-	    	
-	    		response.send (serialiser.serialise (result));
+				callback (false, serialiser.serialise (result));
 	    	} catch (e) {
-				response.status (500);
-				console.error(e)
-  				response.send ({ error: e })
+				callback (true, { error: e });
 	    	}
 	    } 
 
 	    else {
-	    	response.status (500);
-  			response.send ({ error: err })
+	    	callback (true, { error: err });
 	    }
+	})
+}
+
+function ramlToApiE (input) {
+	return new Promise ((resolve, reject) => {
+		processInput (request.rawBody, (err, result) => {
+			if (err)
+				reject ({ error: err });
+			else
+				resolve (result);
+		})
 	})
 }
 
@@ -83,4 +124,37 @@ const processRaml = (req) => {
     return ramlToOas20.convertData(req.rawBody)
 }
 
-module.exports = { rawBodySaver, processInput, processRaml, ramlToOas20 }
+const tempDirectory = (temp_dir) => {
+	return new Promise ((resolve, reject) => {
+		fs.access (temp_dir, (error) => {
+			if (error) {
+				fs.mkdir (temp_dir, (mk_error) => {
+					if (mk_error)
+						reject (false);
+					else
+						resolve (true);
+				})
+			} else
+				resolve (true);
+		})
+	})
+}
+
+const removeTempData = (target) => {
+	return new Promise ((resolve, reject) => {
+		fs.access (target, (error) => {
+			if (error)
+				reject ();
+			else {
+				const paths = [ target, target + '.zip' ];
+				// console.log ('paths', paths);
+				
+				del (paths).then (() => {
+					resolve ();
+				})
+			}
+		})
+	})
+} 
+
+module.exports = { rawBodySaver, processInput, processRequest, ramlToApiE, processRaml, ramlToOas20, tempDirectory, removeTempData }

@@ -7,23 +7,23 @@ const del = require('del')
 const ramlToOas20 = new ramlConverter.Converter(ramlConverter.Formats.RAML, ramlConverter.Formats.OAS20)
 
 const ramlFlattener = async (archive, target) => {
-    target = target
     const id = uuid()
-    try{
+    try {
         const data = fs.readFileSync(archive)
         const zip = new AdmZip(data)
-        zip.extractAllTo(target)
+        zip.extractAllTo (target)
 
-        const dirName = nameRetrieve(archive)
-        const entryPoint = entryFinder(`${target}/${dirName}`)
+        // const dirName = nameRetrieve(archive)
+        // console.log ('archive', archive, 'target', target)
+        const entryPoint = entryFinder (target)
         
-        const swagger = await ramlToOas20.convertFile(entryPoint)
-        del(`${target}/${dirName}`)
+        const swagger = await ramlToOas20.convertFile (entryPoint)
+        // del(`${target}/${dirName}`)
 
         return {
-                "filename": `${target}/${id}.json`,
-                "data": swagger
-            }
+            "filename": `${target}/${id}.json`,
+            "data": swagger
+        }
         
 
 
@@ -33,23 +33,21 @@ const ramlFlattener = async (archive, target) => {
 }
 
 const entryFinder = (dirname) => {
-      let entryPoint
-      const filenames = fs.readdirSync(dirname)
-      filenames.forEach(filename => {
-          const stats = fs.statSync(`${dirname}/${filename}`)
-          if(stats.isDirectory()){
-              return entryFinder(`${dirname}/${filename}`)
-          } else {
-              const data = fs.readFileSync(`${dirname}/${filename}`)
-              if (data.toString('utf-8').includes('baseUri')) {
-                    entryPoint = `${dirname}/${filename}`
-              }
-          }
+    let entryPoint
+    const filenames = fs.readdirSync(dirname)
+    filenames.forEach(filename => {
+        const stats = fs.statSync(`${dirname}/${filename}`)
+        if(stats.isDirectory()){
+            return entryFinder(`${dirname}/${filename}`)
+        } else {
+            const data = fs.readFileSync(`${dirname}/${filename}`)
+            if (data.toString('utf-8').includes('title')) {
+                entryPoint = `${dirname}/${filename}`
+            }
+        }
     })
-
     return entryPoint
-
-  }
+}
 
 const nameRetrieve = (name) => {
     let phase1 = name.split('/')[1]

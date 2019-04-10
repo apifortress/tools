@@ -3,6 +3,11 @@ const router = require('express').Router()
 const exporter = require('highcharts-export-server');
 
 exporter.initPool ();
+process.on ('exit', function () {
+	exporter.killPool ();
+  // console.log ('Phantom pool killed.');
+});
+
 
 router.use('/fury', require('./fury'))
 router.use('/archive', require('./archive'))
