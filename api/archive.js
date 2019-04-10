@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
       cb(null, file.originalname)
     }
   })
-   
+
 const upload = multer({ storage: storage })
 
 router.post('/', upload.single('file'), async (req, res, next) => {
@@ -25,10 +25,10 @@ router.post('/', upload.single('file'), async (req, res, next) => {
         res.send(result.data)
 
 
-    } catch(err){ 
+    } catch(err){
         res.status(500).send(
             {
-                "Status" : 500, 
+                "Status" : 500,
                 "Message" : "Internal Server Error (Invalid RAML)"
             }
         )
