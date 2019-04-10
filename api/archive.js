@@ -14,7 +14,7 @@ const storage = multer.diskStorage ({
     filename: function (req, file, cb) {
 		// file.originalname
 		const id = uuid ();
-		cb (null, id + '.zip');
+		cb (null,id + '===' + file.originalname); //somethingasoidaosidjaoisjd==helloworld.zip
     }
 });
 
@@ -31,11 +31,18 @@ utility.tempDirectory ('temp').then (async (valid) => {
 router.post ('/', upload.single ('file'), async (req, res, next) => {
     try {
 		const target_dir = req.file.path.substring (0, req.file.path.length - 4);
-		const swagger = await ramlFlatten.ramlFlattener (req.file.path, target_dir);
+		const parts = target_dir.split ('===');
+		const orig_filename = parts[1];
+
+		const swagger = await ramlFlatten.ramlFlattener (req.file.path, target_dir, orig_filename);
 		// const result = await utility.ramlToApiE (JSON.parse (swagger.data));
-		const result = await axios.post (`http://localhost:${process.env.PORT || 7801}/fury`, JSON.parse (swagger.data));
+		const result = swagger ? await axios.post (`http://localhost:${process.env.PORT || 7801}/fury`, JSON.parse (swagger)) : null;
 		utility.removeTempData (target_dir);
-		res.send (result.data)
+
+		if (result)
+			res.send (result.data)
+		else
+			throw "Something wrong with swagger";
     } catch (err) {
         res.status (500).send ({
 			"Status" : 500,

@@ -6,29 +6,35 @@ const del = require('del')
 
 const ramlToOas20 = new ramlConverter.Converter(ramlConverter.Formats.RAML, ramlConverter.Formats.OAS20)
 
-const ramlFlattener = async (archive, target) => {
-    const id = uuid()
+const ramlFlattener = async (archive, target, orig_filename) => {
+    const id = uuid ()
     try {
         const data = fs.readFileSync(archive)
         const zip = new AdmZip(data)
         zip.extractAllTo (target)
 
-        // const dirName = nameRetrieve(archive)
-        // console.log ('archive', archive, 'target', target)
-        const entryPoint = entryFinder (target)
-        
-        const swagger = await ramlToOas20.convertFile (entryPoint)
-        // del(`${target}/${dirName}`)
+        let entryPoint = null;
 
-        return {
-            "filename": `${target}/${id}.json`,
-            "data": swagger
+        console.log ('target', target, 'orig_filename', orig_filename, 'can access', fs.existsSync (target))
+        if (fs.existsSync (target + '/' + orig_filename)) {
+            entryPoint = entryFinder (target + '/' + orig_filename);
+        } else {
+            entryPoint = entryFinder (target);
         }
+        // console.log ('archive', archive, 'target', target)
+         
+
+        return entryPoint ? await ramlToOas20.convertFile (entryPoint) : null
+
+        // return {
+        //     "filename": `${target}/${id}.json`,
+        //     "data": swagger
+        // }
         
 
 
     } catch (err){
-        console.error(err)
+        console.error (err)
     }
 }
 
