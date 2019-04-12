@@ -13,10 +13,12 @@ const ramlFlattener = async (archive, target, orig_filename) => {
         let entryPoint  = null,
             dir_name    = null;
 
-        fs.readdirSync (target, { withFileTypes: true }).forEach (it => {
-          console.log(typeof(it));
-            if (it.isDirectory () && it.name !== '__MACOSX')
-                dir_name = it.name;
+        fs.readdirSync (target).forEach (it => {
+            if (it !== '__MACOSX') {
+                const info = fs.statSync (target + '/' + it);
+                if (info.isDirectory ())
+                    dir_name = it;
+            }
         });
 
         // console.log ('dirname', dir_name, target + '/' + dir_name);
