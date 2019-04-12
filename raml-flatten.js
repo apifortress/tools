@@ -22,7 +22,7 @@ const ramlFlattener = async (archive, target, orig_filename) => {
             entryPoint = entryFinder (target);
         }
         // console.log ('archive', archive, 'target', target)
-         
+
 
         return entryPoint ? await ramlToOas20.convertFile (entryPoint) : null
 
@@ -30,7 +30,7 @@ const ramlFlattener = async (archive, target, orig_filename) => {
         //     "filename": `${target}/${id}.json`,
         //     "data": swagger
         // }
-        
+
 
 
     } catch (err){
@@ -46,8 +46,9 @@ const entryFinder = (dirname) => {
         if(stats.isDirectory()){
             return entryFinder(`${dirname}/${filename}`)
         } else {
-            const data = fs.readFileSync(`${dirname}/${filename}`)
-            if (data.toString('utf-8').includes('title')) {
+            const data = fs.readFileSync(`${dirname}/${filename}`);
+            const dutf8 = data.toString('utf-8');
+            if (dutf8.startsWith('#%RAML 1.0\n')||dutf8.startsWith('#%RAML 1.0\r\n')||dutf8.startsWith('#%RAML 0.8\n')||dutf8.startsWith('#%RAML 0.8\r\n')) {
                 entryPoint = `${dirname}/${filename}`
             }
         }
@@ -62,6 +63,3 @@ const nameRetrieve = (name) => {
 }
 
 module.exports = { ramlFlattener }
-
-
-
