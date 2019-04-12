@@ -3,12 +3,12 @@ const bodyParser = require('body-parser')
 const utilFunctions = require('../utility')
 const axios = require('axios')
 
-router.use('/archive', require('./archive'))
+router.use ('/archive', require('./archive'))
 
 router.use (bodyParser.raw ({ limit:'50mb', verify: utilFunctions.rawBodySaver, type: function () { return true } }));
 
-router.post('/', (req, res, next) => {
-    if(req.headers['content-type'].includes('multipart/form-data')){
+router.post ('/', (req, res, next) => {
+    if (req.headers['content-type'].includes('multipart/form-data')){
         return res.redirect(308, '/archive')
     }
     utilFunctions.processRaml(req)
