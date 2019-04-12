@@ -111,7 +111,8 @@ function processInput (input, callback) {
 
 function ramlToApiE (input) {
 	return new Promise ((resolve, reject) => {
-		processInput (request.rawBody, (err, result) => {
+		// console.log (input)
+		processInput (input, (err, result) => {
 			if (err)
 				reject ({ error: err });
 			else

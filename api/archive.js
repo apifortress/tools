@@ -1,6 +1,6 @@
 const router 		= require ('express').Router()
-const axios 		= require ('axios')
-const del 			= require ('del')
+// const axios 		= require ('axios')
+// const del 			= require ('del')
 const multer 		= require ('multer')
 const ramlFlatten 	= require ('../raml-flatten')
 const uuid 			= require ('uuid/v4')
@@ -31,18 +31,25 @@ utility.tempDirectory ('temp').then (async (valid) => {
 router.post ('/', upload.single ('file'), async (req, res, next) => {
     try {
 		const target_dir = req.file.path.substring (0, req.file.path.length - 4);
-		// const parts = target_dir.split ('===');
-		// const orig_filename = parts[1];
-
+		
 		// const result = await utility.ramlToApiE (JSON.parse (swagger.data));
-		const swagger = await ramlFlatten.ramlFlattener (req.file.path, target_dir);
-		const result = swagger ? await axios.post (`http://localhost:${process.env.PORT || 7801}/fury`, JSON.parse (swagger)) : null;
-		utility.removeTempData (target_dir);
+		// axios.post (`http://localhost:${process.env.PORT || 7801}/fury`, JSON.parse (swagger)).then ((apiElements) => {
+		// 	if (apiElements)
+		// 		res.send (apiElements.data)
+		// 	else
+		// 		throw "Something wrong with swagger";
+		// })
 
-		if (result)
-			res.send (result.data)
-		else
-			throw "Something wrong with swagger";
+		ramlFlatten.ramlFlattener (req.file.path, target_dir).then ((swagger) => {
+			utility.ramlToApiE (swagger).then ((apiElements) => {
+				if (apiElements)
+					res.send (apiElements)
+				else
+					throw "Something wrong with swagger";
+				
+				utility.removeTempData (target_dir)
+			})
+		})
     } catch (err) {
         res.status (500).send ({
 			"Status" : 500,
