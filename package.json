@@ -26,7 +26,8 @@
   "scripts": {
     "test": "mocha --exit",
     "start": "node app.js",
-    "start-dev": "nodemon app.js"
+    "start-dev": "nodemon app.js",
+    "preinstall": "export ACCEPT_HIGHCHARTS_LICENSE=1"
   },
   "keywords": [],
   "author": "Simone Pezzano/Jason Ioannides",
