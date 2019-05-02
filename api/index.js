@@ -2,7 +2,10 @@ const router = require('express').Router()
 // const utilFunctions = require('../utility')
 const exporter = require('highcharts-export-server');
 
-exporter.initPool ();
+exporter.initPool ({
+	maxWorkers: 2,
+	initialWorkers: 1
+});
 process.on ('exit', function () {
 	exporter.killPool ();
   // console.log ('Phantom pool killed.');
