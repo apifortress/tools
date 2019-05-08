@@ -1,13 +1,10 @@
 FROM node:7.7
-RUN mkdir /tools
+FROM toolz
+#RUN mkdir /tools
 COPY package*.json ./
+ENV ACCEPT_HIGHCHARTS_LICENSE YES
 RUN npm install --only=production
 COPY . .
-# RUN mkdir /tools/node_modules
-# WORKDIR /tools
-# COPY ./node_modules/ /tools/node_modules/
-
-# COPY app.js /tools/
 
 EXPOSE 7801
 # ENTRYPOINT ["node", "app.js"]
